@@ -9,33 +9,51 @@ class Fib extends Component {
   };
 
   componentDidMount() {
+    console.log('Component did mount');
     this.fetchValues();
     this.fetchIndexes();
   }
 
   async fetchValues() {
-    const values = await axios.get('/api/values/current');
-    this.setState({ values: values.data });
+    try {
+      const values = await axios.get('/api/values/current');
+      this.setState({ values: values.data });
+    } catch (error) {
+      console.error('Error fetching current values:', error);
+    }
   }
 
   async fetchIndexes() {
-    const seenIndexes = await axios.get('/api/values/all');
-    this.setState({
-      seenIndexes: seenIndexes.data,
-    });
+    try {
+      const seenIndexes = await axios.get('/api/values/all');
+      this.setState({
+        seenIndexes: seenIndexes.data,
+      });
+    } catch (error) {
+      console.error('Error fetching seen indexes:', error);
+    }
   }
 
   handleSubmit = async (event) => {
     event.preventDefault();
 
-    await axios.post('/api/values', {
-      index: this.state.index,
-    });
-    this.setState({ index: '' });
+    try {
+      await axios.post('/api/values', {
+        index: this.state.index,
+      });
+      this.setState({ index: '' });
+      // Re-fetch values and indexes after submission
+      this.fetchValues();
+      this.fetchIndexes();
+    } catch (error) {
+      console.error('Error submitting index:', error);
+    }
   };
 
   renderSeenIndexes() {
-    return this.state.seenIndexes.map(({ number }) => number).join(', ');
+    const seenIndexes = this.state.seenIndexes.map(({ number }) => number).join(', ');
+    console.log('Seen indexes:', seenIndexes);
+    return seenIndexes;
   }
 
   renderValues() {
@@ -49,6 +67,7 @@ class Fib extends Component {
       );
     }
 
+    console.log('Values:', entries);
     return entries;
   }
 
